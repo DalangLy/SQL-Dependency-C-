@@ -42,7 +42,7 @@ namespace TestSQLNotify
             oConnection.Open();
             try
             {
-                SqlCommand oCommand = new SqlCommand("SELECT ID, Name, Surname FROM dbo.Customers", oConnection);
+                SqlCommand oCommand = new SqlCommand("SELECT ID, Name, Surname FROM dbo.Customers WHERE isActive = 1", oConnection);
                 SqlDependency oDependency = new SqlDependency(oCommand);
                 oDependency.OnChange += new OnChangeEventHandler(OnNotificationChange);
                 SqlDataReader objReader = oCommand.ExecuteReader();
@@ -51,6 +51,7 @@ namespace TestSQLNotify
                     while (objReader.Read())
                     {
                         // Doing something here...
+                        Console.WriteLine(objReader.GetValue(1));
                     }
                 }
                 finally
@@ -64,9 +65,12 @@ namespace TestSQLNotify
             }
         }
 
-        public static void OnNotificationChange(object caller,
-                                                SqlNotificationEventArgs e)
+        public static void OnNotificationChange(object caller, SqlNotificationEventArgs e)
         {
+            if(e.Type == SqlNotificationType.Change)
+            {
+                Console.WriteLine("Change Event Triggered");
+            }
             Console.WriteLine(e.Info.ToString() + ": " + e.Type.ToString());
             RegisterForChanges();
         }
